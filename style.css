@@ -23,8 +23,10 @@ body {
     display: flex;
     flex-direction: column;
     position: absolute;
-    width: 1366px;
-    height: 600px;
+    --screen-width: 1366px;
+    --screen-height: 600px;
+    width: var(--screen-width);
+    height: var(--screen-height);
     overflow: hidden;
 }
 
@@ -143,7 +145,7 @@ body {
     animation-duration: 0.8s;
 }
 
-#frontpage div button {
+#initialize {
     position: absolute;
     background-color: #EDEDED;
     top: 350px;
@@ -160,7 +162,7 @@ body {
     cursor: pointer;
 }
 
-#frontpage div button:hover {
+#initialize:hover {
     border: 2px solid hsla(123, 100%, 50%, 0.637);
     background-color: hsla(123, 100%, 50%, 0.637);
 }
@@ -170,7 +172,7 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
-    left: 540px;
+    left: 545px;
     bottom: 10px;
 }
 
@@ -194,9 +196,9 @@ body {
     z-index: 0;
 }
 
-#illu-two {
+/* #illu-two {
 
-}
+} */
 
 #grid {
     position: absolute;
@@ -204,12 +206,14 @@ body {
     width: 750px; 
     height: 300px;
     top: 150px;
-    border: 2px solid grey;
+    background: url("images/grid-background.png");
     align-self: center;
     display: grid;
     grid-template-rows: 1fr 1fr;
     grid-template-columns: 1fr 1fr 1fr 1fr;
     grid-auto-flow: row;
+    grid-auto-rows: 1fr;
+    grid-auto-columns: 1fr;
     animation: upper-slide-down 1.5s forwards;
     gap: 10px
 }
@@ -218,4 +222,135 @@ body {
     height: 100%;
     width: 100%;
     border: 2px solid red;
+}
+
+.hud:hover {
+    transform: scale(1.5);
+    cursor: pointer;
+}
+
+#add-button {
+    width: min-content;
+    background-color: white;
+    border-radius: 100%;
+    padding: 5px;
+    position: relative;
+    top: 430px;  
+    left: 985px;
+    z-index: 2;
+    animation: upper-slide-down 1.5s;
+}
+
+#add-button img {
+    height: 30px;
+}
+
+#delete-button {
+    width: min-content;
+    background-color: white;
+    border-radius: 10px;
+    position: relative;
+    top: 390px;  
+    left: 1040px;
+    z-index: 2;
+    animation: upper-slide-down 1.5s;
+}
+
+#delete-button img {
+    height: 35px;
+}
+
+#bookEdit {
+    --dialog-height: 400px;
+    --dialog-width: 300px;
+    height: var(--dialog-height);
+    width: var(--dialog-width);
+    z-index: 3;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0px 0px 10px 0 rgba(0, 0, 0, 0.2);
+    position: relative;
+    top: calc((var(--screen-height) / 2) - var(--dialog-height) / 2);
+    left: calc(50% - var(--dialog-width) / 2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+}
+
+#bookEdit form {
+    display: flex;
+    flex-direction: column;
+    width: 250px;
+    gap: 10px;
+}
+
+#bookEdit::backdrop {
+    background-color: black;
+    opacity: 0.65;
+}
+
+.userInput {
+    background-color: #EDEDED;
+    border-radius: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    font-family: 'Segoe UI', Tahoma, Helvetica, Verdana, sans-serif;
+}
+
+#otherInput {
+    height: 200px;
+    padding-top: 10px;
+    text-align: justify;
+}
+
+#dialogButtons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 20px;
+}
+
+#saveButton {
+    width: 60px;
+    height: 25px;
+    border-radius: 15px;
+    background-color: lightgreen;
+    color: white;
+    cursor: pointer;
+}
+
+#saveButton:hover {
+    animation: my-fade 1s; 
+    background-color:  hsla(123, 100%, 50%, 1);
+}
+
+#closeButton {
+    width: 15px;
+    top: -5px;
+    right: -5px;
+    text-align: center;
+    position: absolute;
+    color: white;
+    font-weight: 900;
+    padding: 2px 5px 5px 5px;
+    border-radius: 3px;
+    background-color: red;
+    cursor: pointer;
+}
+
+#closeButton:hover {
+    transform: scale(1.2);
+}
+
+#delBookButton {
+    background-color: white;
+    cursor: pointer;
+}
+
+#delBookButton:hover {
+    color: red;
 }
