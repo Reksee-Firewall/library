@@ -6,13 +6,15 @@ const myLibrary = [];
 
 // Protótipos são utilizados para herança. A atribuição seria, ao invés disto, direta.
 // Construtor.
-function Book(name, author, numberOfPages, isRead) {
+function Book(name, author, numberOfPages, isRead, other, bookIdentifier) {
     this.name = name; 
     this.author = author;
     this.numberOfPages = numberOfPages;
     this.isRead = isRead;
+    this.other = other;
+    this.bookIdentifier = bookIdentifier;
     this.toString = function() {
-        return(`[${this.name} by ${this.author}; ${this.numberOfPages}; isRead: ${this.isRead}]`); 
+        return(`[${this.name} by ${this.author}; ${this.numberOfPages}; isRead: ${this.isRead}]; bookIdentifier: ${bookIdentifier}`); 
     };
 }   
 
@@ -66,8 +68,8 @@ function openLibrary() {
     background.style.height = "100%";
 }
 
-function addBook() {
-    
+function openDialog(book) {
+
     const dialog = document.createElement("dialog");
     dialog.setAttribute("id", "bookEdit");
 
@@ -83,6 +85,7 @@ function addBook() {
     nameInput.setAttribute("type", "text");
     nameInput.setAttribute("name", "nameInput"); 
     nameInput.setAttribute("placeholder", "Name");
+    nameInput.setAttribute("maxlength", "32");
 
     const authorInput = document.createElement("input");
     authorInput.setAttribute("class", "userInput");
@@ -90,6 +93,7 @@ function addBook() {
     authorInput.setAttribute("type", "text");
     authorInput.setAttribute("name", "authorInput"); 
     authorInput.setAttribute("placeholder", "Author");
+    authorInput.setAttribute("maxlength", "32");
 
     const pagesInput = document.createElement("input");
     pagesInput.setAttribute("class", "userInput");
@@ -97,6 +101,7 @@ function addBook() {
     pagesInput.setAttribute("type", "text");
     pagesInput.setAttribute("name", "pagesInput"); 
     pagesInput.setAttribute("placeholder", "Number of pages");
+    pagesInput.setAttribute("maxlength", "32");
 
     const otherInput = document.createElement("textarea");
     otherInput.setAttribute("class", "userInput");
@@ -119,6 +124,9 @@ function addBook() {
     const delBookButton = document.createElement("button");
     delBookButton.setAttribute("id", "delBookButton");
     delBookButton.textContent = "Delete Book";
+
+    // Delete option should NOT be available when ADDING a NEW book.
+    delBookButton.style.visibility = "hidden"; 
     
     const dialogButtons = document.createElement("div"); 
     dialogButtons.setAttribute("id", "dialogButtons"); 
@@ -135,23 +143,87 @@ function addBook() {
 
     dialog.showModal();
 
-    formButton.addEventListener("click", () => {
-        dialog.remove();
-    });
-    
-    form.addEventListener("submit", (event) => {
-        event.preventDefault();
-    });
+    if (book) {
+        nameInput.value = book.name;
+        authorInput.value = book.author;
+        pagesInput.value = book.numberOfPages;
+        otherInput.value = book.other;
+    }
+}
 
-    window.addEventListener('keydown', (event) => {
-        if (event.keyCode === 27) {
+function addBook(gridNumber) {
+    let currentLibrarySize = myLibrary.length;
+    let isFormValid = false;
+    const column = currentLibrarySize % 4; 
+    const line = Math.trunc(currentLibrarySize / 4); 
+
+    if ((line * 4 + column) > 1) {
+        throw new Error("Grid has reached it's limit.");
+    } else {
+        openDialog();
+        const form = document.querySelector("form");
+        const dialog = document.querySelector("dialog");
+        form.addEventListener("submit", (event) => {
+            // Adiciona required a todos os elementos necessários que não tiverem sido preenchidos.
+            const getInputs = Array.from(document.querySelectorAll(".userInput"));
+            isFormValid = true; 
+            getInputs.forEach((elem) => {
+                if (elem.hasAttribute("placeholder") && !(elem.value)) {
+                    elem.setAttribute("required", true);
+                    isFormValid = false;
+                }
+            });
             event.preventDefault();
-        }
-    });
 
-    closeButton.addEventListener("click", () => {
-        dialog.remove();
-    });
+            if (isFormValid) {
+
+                // Criação do Livro
+            
+                let name, author='null', numberOfPages='null', isRead=false, other='null';
+
+                const bookIdentifier = `G${String(gridNumber).padStart(2, '0')}L${String(line).padStart(2, '0')}C${String(column).padStart(2, '0')}`;
+
+                name = document.getElementById("nameInput").value;
+                author = document.getElementById("authorInput").value;
+                pages = document.getElementById("pagesInput").value;
+                other = document.getElementById("otherInput").value;
+
+                const newBook = new Book(name, author, pages, isRead, other, bookIdentifier);
+                myLibrary.push(newBook); 
+
+                const bookBox = document.createElement("div");
+                bookBox.setAttribute("class", "bookItem"); 
+                bookBox.setAttribute("id", (Number(line) * 4) + Number(column)); 
+                
+                const gridItem = document.getElementById(`gridItemNumber${(Number(line) * 4) + Number(column)}`);
+
+                gridItem.appendChild(bookBox);
+
+                // <-- 
+
+                // Book Configurations
+
+                bookBox.addEventListener("click", () => {
+                    openDialog(newBook);
+                    delBookButton.style.visibility = "visible"; 
+                });
+
+                // <--
+                
+                dialog.remove();
+            }
+        });
+        window.addEventListener('keydown', (event) => {
+            if (event.keyCode === 27) {
+                event.preventDefault();
+            }
+        });
+        const closeButton = document.querySelector("#closeButton");
+        closeButton.addEventListener("click", () => {
+            dialog.remove();
+        });
+
+    }
 }
 
 function removeBook(bookId) {}
@@ -165,11 +237,11 @@ function initializeGrid(gridNumber) {
     const booksGrid = document.createElement("div"); 
     booksGrid.setAttribute("id", "grid");     
     
-    for (i = 1; i <= 2; i++) {
-        for (j = 1; j <= 4; j++) {
+    for (i = 0; i < 2; i++) {
+        for (j = 0; j < 4; j++) {
             const gridElement = document.createElement("div"); 
             gridElement.setAttribute("class", "gridItem");
-            gridElement.setAttribute("id", `G${String(gridNumber).padStart(2, '0')}L${String(i).padStart(2, '0')}C${String(j).padStart(2, '0')}`);
+            gridElement.setAttribute("id", `gridItemNumber${i * 4 + j}`);
             booksGrid.appendChild(gridElement);
         }
     }
@@ -202,7 +274,7 @@ initializeButton.addEventListener("click", () => {
         const plusButton = document.getElementById("add-button");
         const delButton = document.getElementById("delete-button");
         plusButton.addEventListener("click", () => {
-            addBook();
+            addBook(0);
         }); 
         
         delButton.addEventListener("click", () => {

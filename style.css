@@ -121,6 +121,15 @@ body {
     }
 }
 
+@keyframes grow {
+    from {
+        transform: scale(0.1);
+    }
+    to {
+        transform: scale(1.0);
+    }
+}
+
 #first-card {
     position: absolute; 
     top: 120px;
@@ -222,6 +231,9 @@ body {
     height: 100%;
     width: 100%;
     border: 2px solid red;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .hud:hover {
@@ -299,6 +311,12 @@ body {
     padding-top: 5px;
     padding-bottom: 5px;
     font-family: 'Segoe UI', Tahoma, Helvetica, Verdana, sans-serif;
+    outline: none;
+}
+
+.userInput:focus {
+    border: 1px solid cornflowerblue;
+    box-shadow: 1px 1px 3px 0 rgba(0, 0, 0, 0.3);
 }
 
 #otherInput {
@@ -353,4 +371,24 @@ body {
 
 #delBookButton:hover {
     color: red;
+}
+
+.userInput[required=true] {
+    border: 1px solid red;
+}
+
+.bookItem {
+    width: 100px;
+    height: 140px;
+    background: url("images/book.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    border: 2px solid red;
+    animation: grow 2s backwards;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.bookItem:hover {
+    transform: scale(1.080);
 }
