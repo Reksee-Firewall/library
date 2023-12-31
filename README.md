@@ -14,11 +14,7 @@ NOTE: You’re not required to add any type of storage right now. You will have 
 
 Features to Add: 
 
-- Remove specific book. 
-- Remove all books. 
 - When hover, name appears over the book.  
-- Red book animation when library is full. 
-- Should work on backend configuration later on.
 - Add marker if book is/isn't read. 
 - Initially, configuration is saved within the browser.
 
@@ -31,9 +27,4 @@ Upcoming Features:
 - Book cover customization. 
 - On the next panel, add second illustration to the scene. 
 - UI audio by user interaction.
-
-...
-
-28/12/2024 
-
-End of a chapter. More to come. 
+- Sign-in via Google. 

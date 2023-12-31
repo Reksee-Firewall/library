@@ -103,6 +103,16 @@ function openDialog(book) {
     pagesInput.setAttribute("placeholder", "Number of pages");
     pagesInput.setAttribute("maxlength", "32");
 
+    pagesInput.addEventListener("keydown", (event) => {
+        const key = event.key; 
+        const numbers = "0123456789";
+        if (key !== "Backspace" && key !== "Enter" && key !== "Tab") {
+            if (!numbers.includes(key)) {
+                event.preventDefault();
+            }
+        }
+    }, false); 
+
     const otherInput = document.createElement("textarea");
     otherInput.setAttribute("class", "userInput");
     otherInput.style.resize = "none";
@@ -127,7 +137,7 @@ function openDialog(book) {
 
     // Delete option should NOT be available when ADDING a NEW book.
     delBookButton.style.visibility = "hidden"; 
-    
+
     const dialogButtons = document.createElement("div"); 
     dialogButtons.setAttribute("id", "dialogButtons"); 
 
@@ -151,16 +161,37 @@ function openDialog(book) {
     }
 }
 
-function addBook(gridNumber) {
+function addBook(gridNumber, lastBook, addLocal = 0) {
     let currentLibrarySize = myLibrary.length;
     let isFormValid = false;
-    const column = currentLibrarySize % 4; 
-    const line = Math.trunc(currentLibrarySize / 4); 
 
-    if ((line * 4 + column) > 1) {
+    // Find first empty box
+    const grid = document.querySelector("#grid");
+    const gridArray = Array.from(grid.childNodes);
+
+    const firstWithoutChildren = gridArray.find((item) => {
+        if (item.children.length === 0) {
+            return item; 
+        }
+    });
+    const indexOfFirstWithoutChildren = gridArray.indexOf(firstWithoutChildren);
+    // <-- 
+
+    const column = indexOfFirstWithoutChildren % 4; 
+    const line = Math.trunc(indexOfFirstWithoutChildren / 4); 
+
+    if ((currentLibrarySize) >= 7) {
+        const plusButton = document.getElementById("add-button");
+        if (!plusButton.classList.contains('whateverTurnRed')) {
+            plusButton.style.backgroundColor = "red";
+            setTimeout(() => {
+                plusButton.style.backgroundColor = "white";
+            }, 500); 
+        }
         throw new Error("Grid has reached it's limit.");
     } else {
-        openDialog();
+        if (addLocal === 0) 
+            openDialog(lastBook);
         const form = document.querySelector("form");
         const dialog = document.querySelector("dialog");
         form.addEventListener("submit", (event) => {
@@ -173,13 +204,14 @@ function addBook(gridNumber) {
                     isFormValid = false;
                 }
             });
+            
             event.preventDefault();
 
-            if (isFormValid) {
+            let name, author='null', numberOfPages='null', isRead=false, other='null';
+
+            if (isFormValid && !lastBook) {
 
                 // Criação do Livro
-            
-                let name, author='null', numberOfPages='null', isRead=false, other='null';
 
                 const bookIdentifier = `G${String(gridNumber).padStart(2, '0')}L${String(line).padStart(2, '0')}C${String(column).padStart(2, '0')}`;
 
@@ -190,6 +222,10 @@ function addBook(gridNumber) {
 
                 const newBook = new Book(name, author, pages, isRead, other, bookIdentifier);
                 myLibrary.push(newBook); 
+
+                // Upload em Browser
+                localStorage.setItem(`localItemNumber${localStorage.length}`, newBook);
+                // <--
 
                 const bookBox = document.createElement("div");
                 bookBox.setAttribute("class", "bookItem"); 
@@ -204,12 +240,33 @@ function addBook(gridNumber) {
                 // Book Configurations
 
                 bookBox.addEventListener("click", () => {
-                    openDialog(newBook);
+                    addBook(0, newBook);
                     delBookButton.style.visibility = "visible"; 
                 });
 
                 // <--
-                
+                dialog.remove();
+            }
+            if (isFormValid && lastBook) {
+
+                name = document.getElementById("nameInput").value;
+                author = document.getElementById("authorInput").value;
+                pages = document.getElementById("pagesInput").value;
+                other = document.getElementById("otherInput").value;
+
+                myLibrary.forEach((elem) => {
+                    if (elem === lastBook) {
+                        elem.name = name; 
+                        elem.author = author; 
+                        elem.numberOfPages = pages;
+                        elem.other = other;
+                    }
+                });
+
+                // Upload em Browser
+                localStorage.setItem(`localItemNumber${myLibrary.indexOf(lastBook)}`, lastBook);
+                // <--
+
                 dialog.remove();
             }
         });
@@ -223,14 +280,58 @@ function addBook(gridNumber) {
             dialog.remove();
         });
 
+        if (lastBook) {
+            const delBookButton = document.querySelector("#delBookButton");
+            delBookButton.addEventListener("click", () => {
+
+                const index = myLibrary.indexOf(lastBook);
+
+                myLibrary.forEach((book) => {
+                    if (book === lastBook) {
+
+                        /* O item é removido apenas quando o navegador é fechado ou 
+                        quando o usuário limpa o armazenamento local. */
+
+                        // localStorage.removeItem(`localItemNumber${index}`); 
+                        
+                        // How to solve? IDKY
+                    }
+                });
+
+                const gridItem = document.querySelector(`#gridItemNumber${index}`);
+                gridItem.innerHTML = '';
+            });
+        }
     }
 }
 
-function removeBook(bookId) {}
+function removeAllBooks() {
 
-function removeAllBooks() {}
+    const grid = document.getElementById("grid");
 
-function editBook(bookId) {}
+    myLibrary.splice(0, 7);
+
+    (Array.from(grid.children)).forEach((elem) => {
+        if (elem.hasChildNodes) {
+            elem.innerHTML = '';
+        }
+    });    
+
+    localStorage.clear();
+}
+
+function localBooksInitialize() {
+    let size = localStorage.length;
+    if (size > 0) {
+        for(let i = 0; i < size; i++ ) {
+            // myLibrary.push(localStorage.getItem(`item${i}`)); 
+            // addBook(0, null, 1);
+            // addBook(0, localStorage.getItem(`item${i}`));
+            console.log(localStorage.key(i));
+        }
+        console.log(localStorage);
+    }
+}
 
 function initializeGrid(gridNumber) {
     // Books Grid 
@@ -264,6 +365,8 @@ function initializeGrid(gridNumber) {
     frontpage.appendChild(deleteButton); 
 
     frontpage.appendChild(booksGrid);    
+
+    localBooksInitialize();
 }
 
 // EventListener é adicionado somente uma vez.
@@ -276,7 +379,6 @@ initializeButton.addEventListener("click", () => {
         plusButton.addEventListener("click", () => {
             addBook(0);
         }); 
-        
         delButton.addEventListener("click", () => {
             removeAllBooks();
         });

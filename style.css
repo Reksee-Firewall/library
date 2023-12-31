@@ -251,6 +251,7 @@ body {
     left: 985px;
     z-index: 2;
     animation: upper-slide-down 1.5s;
+    outline: none;
 }
 
 #add-button img {
@@ -266,10 +267,15 @@ body {
     left: 1040px;
     z-index: 2;
     animation: upper-slide-down 1.5s;
+    outline: none;
 }
 
 #delete-button img {
     height: 35px;
+}
+
+#delete-button:hover {
+    background-color: red;
 }
 
 #bookEdit {
